@@ -1,0 +1,901 @@
+**installeing bootstrap4**
+=========================================
+
+composer require --prefer-dist yiisoft/yii2-bootstrap4
+
+
+**activate: @app\assert_options
+
+public $depends = [
+    'yii\web\YiiAsset',
+    'yii\bootstrap4\BootstrapAsset', // this line
+];
+
+
+
+views>layout>main.php 
+
+search for navbae::begine()
+
+add 
+'options' => [
+           // 'class' => 'navbar-inverse navbar-fixed-top',
+           'class' => 'navbar-inverse navbar-expand-md navbar-fixed-top',
+            'style' => 'font-size:20px;'
+            
+        ],
+
+
+
+
+**Datagrid actioncoloumn
+
+['class' => 'yii\grid\ActionColumn',
+                'buttons' => [
+                    'update' =>  function($url,$model) {
+                        return Html::a('<i class="fas fa-edit"></i>', $url, [
+                            'title' => Yii::t('app', 'update')
+                        ]);
+                    },
+                    'view' =>  function($url,$model) {
+                        return Html::a('<i class="fas fa-eye"></i>', $url, [
+                            'title' => Yii::t('app', 'view')
+                        ]);
+                    },
+                    'delete' => function($url,$model) {
+                    return Html::a(FA::icon('trash'), $url, [
+                        'title' => Yii::t('app', 'delete'),
+                        'class' => 'btn btn-danger',
+                        'data' => [
+                            'confirm' => 'Are you sure you want to delete this item?',
+                            'method' => 'post',
+                        ],
+                    ]);
+                }
+                 ]
+            ],
+
+
+
+**Breadcrumb issues
+
+for breadcrumbs, most of the issues can be solved by replacing:
+
+use yii\widgets\Breadcrumbs;
+with:
+
+use yii\bootstrap4\Breadcrumbs;
+
+
+
+
+**Upgrade adminlte3** 
+==============================================================================
+
+composer require --prefer-dist hail812/yii2-adminlte3 "*"
+
+
+copy views from 
+vendor/hail812/yii2-adminlte3/src/views
+
+alert 
+<?= \hail812\adminlte3\widgets\Alert::widget([
+    'type' => 'success',
+    'body' => '<h3>Congratulations!</h3>'
+]) ?>
+
+swwtalert
+
+/* @var $this \yii\web\View */
+
+\hail812\adminlte3\assets\PluginAsset::register($this)->add('sweetalert2');
+
+
+
+before this, maybe you should edit params.php:
+
+return [
+    'adminEmail' => 'admin@example.com',
+    'hail812/yii2-adminlte3' => [
+        'pluginMap' => [
+            'sweetalert2' => [
+                'css' => 'sweetalert2-theme-bootstrap-4/bootstrap-4.min.css',
+                'js' => 'sweetalert2/sweetalert2.min.js'
+            ],
+            'toastr' => [
+                'css' => ['toastr/toastr.min.css'],
+                'js' => ['toastr/toastr.min.js']
+            ],
+        ]
+    ]
+
+
+    or
+
+    /* @var $this \yii\web\View */
+
+$bundle = \hail812\adminlte3\assets\PluginAsset::register($this);
+$bundle->css[] = 'sweetalert2-theme-bootstrap-4/bootstrap-4.min.css';
+$bundle->js[] = 'sweetalert2/sweetalert2.min.js';
+
+
+
+
+S3 Bucket Connection
+
+https://www.yiiframework.com/extension/bp-sys/yii2-aws-s3
+
+
+
+
+
+Upload 
+========
+
+
+public function actionCreate()
+{
+    $model = new Post();
+    $this->handlePostSave($model);
+
+    return $this->render('create', [
+        'model' => $model,
+    ]);
+}
+
+public function actionUpdate($id)
+{
+    $model = $this->findModel($id);
+
+    $this->handlePostSave($model);
+
+    return $this->render('update', [
+        'model' => $model,
+    ]);
+}
+Now let's implement handlePostSave():
+
+protected function handlePostSave(Post $model)
+{
+    if ($model->load(Yii::$app->request->post())) {
+        $model->upload = UploadedFile::getInstance($model, 'upload');
+
+        if ($model->validate()) {
+            if ($model->upload) {
+                $filePath = 'uploads/' . $model->upload->baseName . '.' . $model->upload->extension;
+                if ($model->upload->saveAs($filePath)) {
+                    $model->image = $filePath;
+                }
+            }
+
+            if ($model->save(false)) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+        }
+    }
+}
+
+
+
+
+Multi Lingual
+
+Initiate
+
+php yii message/config --languages=en,bn,hn,gu,ar,kn,ta,te,mr,ml,or --messagePath=messages config/config.php
+
+
+
+
+
+Translate Manager
+
+https://awesomeopensource.com/project/lajax/yii2-translate-manager
+
+
+installation
+
+composer require lajax/yii2-translate-manager
+
+yii migrate/up --migrationPath=@vendor/lajax/yii2-translate-manager/migrations
+
+
+
+
+
+// Add namespace to console config:
+'controllerMap' => [
+    'migrate' => [
+        'class' => 'yii\console\controllers\MigrateController',
+        'migrationNamespaces' => [
+            'lajax\translatemanager\migrations\namespaced',
+        ],
+    ],
+],
+
+
+yii migrate/up
+
+'language' => 'en-US',
+'components' => [
+    'i18n' => [
+        'translations' => [
+            '*' => [
+                'class' => 'yii\i18n\DbMessageSource',
+                'db' => 'db',
+                'sourceLanguage' => 'xx-XX', // Developer language
+                'sourceMessageTable' => '{{%language_source}}',
+                'messageTable' => '{{%language_translate}}',
+                'cachingDuration' => 86400,
+                'enableCaching' => true,
+            ],
+        ],
+    ],
+],
+Turning on the TranslateManager Module:
+
+Simple example:
+
+'modules' => [
+    'translatemanager' => [
+        'class' => 'lajax\translatemanager\Module',
+    ],
+],
+A more complex example including database table with multilingual support is below:
+
+'modules' => [
+    'translatemanager' => [
+        'class' => 'lajax\translatemanager\Module',
+        'root' => '@app',               // The root directory of the project scan.
+        'scanRootParentDirectory' => true, // Whether scan the defined `root` parent directory, or the folder itself.
+                                           // IMPORTANT: for detailed instructions read the chapter about root configuration.
+        'layout' => 'language',         // Name of the used layout. If using own layout use 'null'.
+        'allowedIPs' => ['127.0.0.1'],  // IP addresses from which the translation interface is accessible.
+        'roles' => ['@'],               // For setting access levels to the translating interface.
+        'tmpDir' => '@runtime',         // Writable directory for the client-side temporary language files.
+                                        // IMPORTANT: must be identical for all applications (the AssetsManager serves the JavaScript files containing language elements from this directory).
+        'phpTranslators' => ['::t'],    // list of the php function for translating messages.
+        'jsTranslators' => ['lajax.t'], // list of the js function for translating messages.
+        'patterns' => ['*.js', '*.php'],// list of file extensions that contain language elements.
+        'ignoredCategories' => ['yii'], // these categories won't be included in the language database.
+        'onlyCategories' => ['yii'],    // only these categories will be included in the language database (cannot be used together with "ignoredCategories").
+        'ignoredItems' => ['config'],   // these files will not be processed.
+        'scanTimeLimit' => null,        // increase to prevent "Maximum execution time" errors, if null the default max_execution_time will be used
+        'searchEmptyCommand' => '!',    // the search string to enter in the 'Translation' search field to find not yet translated items, set to null to disable this feature
+        'defaultExportStatus' => 1,     // the default selection of languages to export, set to 0 to select all languages by default
+        'defaultExportFormat' => 'json',// the default format for export, can be 'json' or 'xml'
+        'tables' => [                   // Properties of individual tables
+            [
+                'connection' => 'db',   // connection identifier
+                'table' => '{{%language}}',         // table name
+                'columns' => ['name', 'name_ascii'],// names of multilingual fields
+                'category' => 'database-table-name',// the category is the database table name
+            ]
+        ],
+        'scanners' => [ // define this if you need to override default scanners (below)
+            '\lajax\translatemanager\services\scanners\ScannerPhpFunction',
+            '\lajax\translatemanager\services\scanners\ScannerPhpArray',
+            '\lajax\translatemanager\services\scanners\ScannerJavaScriptFunction',
+            '\lajax\translatemanager\services\scanners\ScannerDatabase',
+        ],
+    ],
+],
+Configuring the scan root
+The root path can be an alias or a full path (e.g. @app or /webroot/site/).
+
+The file scanner will scan the configured folders for translatable elements. The following two options determine the scan root directory: root, and scanRootParentDirectory. These options are defaults to values that works with the Yii 2 advanced project template. If you are using basic template, you have to modify these settings.
+
+The root options tells which is the root folder for project scan. It can contain a single directory (string), or multiple directories (in an array).
+
+The scanRootParentDirectory is used only if a single root directory is specified in a string.
+
+IMPORTANT: Changing these options could cause loss of translated items, as optimize action removes the missing items. So be sure to double check your configuration!
+
+a) Single root directory:
+
+It is possible to define one root directory as string in the root option. In this case the scanRootParentDirectory will be used when determining the actual directory to scan.
+
+If scanRootParentDirectory is set to true (which is the default value), the scan will run on the parent directory. This is desired behavior on advanced template, because the @app is the root for the current app, which is a subfolder inside the project (so the entire root of the project is the parent directory of @app).
+
+For basic template the @app is also the root for the entire project. Because of this with the default value of scanRootParentDirectory, the scan runs outside the project folder. This is not desired behavior, and changing the value to false solves this.
+
+IMPORTANT: Changing the scanRootParentDirectory from true to false could cause loss of translated items, as the root will be a different directory.
+
+For example:
+
+root value	scanRootParentDirectory value	Scanned directory
+/webroot/site/frontend	true	/webroot/site
+/webroot/site/frontend	false	/webroot/site/frontend
+b) Multiple root directories:
+
+Multiple root directories can be defined in an array. In this case all items must point to the exact directory, as scanRootParentDirectory will be omitted.
+
+For example:
+
+'root' => [
+    '@frontend',
+    '@vendor',
+    '/some/external/folder',
+],
+Using of authManager
+Examples:
+
+PhpManager:
+
+'components' => [
+    'authManager' => [
+        'class' => 'yii\rbac\PhpManager',
+    ],
+    // ...
+],
+DbManager:
+
+'components' => [
+    'authManager' => [
+        'class' => 'yii\rbac\DbManager',
+    ],
+    // ...
+],
+Front end translation:
+'bootstrap' => ['translatemanager'],
+'components' => [
+    'translatemanager' => [
+        'class' => 'lajax\translatemanager\Component'
+    ]
+]
+Usage
+Register client scripts
+To translate static messages in JavaScript files it is necessary to register the files.
+
+To register your scripts, call the following method in each action:
+
+\lajax\translatemanager\helpers\Language::registerAssets();
+A simple example for calling the above method at each page load:
+
+namespace common\controllers;
+
+use lajax\translatemanager\helpers\Language;
+
+// IMPORTANT: all Controllers must originate from this Controller!
+class Controller extends \yii\web\Controller {
+
+    public function init() {
+        Language::registerAssets();
+        parent::init();
+    }
+}
+ToggleTranslate button
+Simple example for displaying a button to switch to front end translation mode. (The button will only appear for users who have the necessary privileges for translating!)
+
+\lajax\translatemanager\widgets\ToggleTranslate::widget();
+A more complex example for displaying the button:
+
+\lajax\translatemanager\widgets\ToggleTranslate::widget([
+ 'position' => \lajax\translatemanager\widgets\ToggleTranslate::POSITION_TOP_RIGHT,
+ 'template' => '<a href="javascript:void(0);" id="toggle-translate" class="{position}" data-language="{language}" data-url="{url}"><i></i> {text}</a><div id="translate-manager-div"></div>',
+ 'frontendTranslationAsset' => 'lajax\translatemanager\bundles\FrontendTranslationAsset',
+ 'frontendTranslationPluginAsset' => 'lajax\translatemanager\bundles\FrontendTranslationPluginAsset',
+]);
+Placing multilingual elements in the source code.
+JavaScript:
+
+lajax.t('Apple');
+lajax.t('Hello {name}!', {name:'World'});
+lajax.t("Don't be so upset.");
+PHP methods:
+
+Yii::t('category', 'Apple');
+Yii::t('category', 'Hello {name}!', ['name' => 'World']);
+Yii::t('category', "Don't be so upset.");
+PHP functions for front end translation:
+
+use lajax\translatemanager\helpers\Language as Lx;
+
+Lx::t('category', 'Apple');
+Lx::t('category', 'Hello {name}!', ['name' => 'World']);
+Lx::t('category', "Don't be so upset.");
+IMPORTANT: The lajax\translatemanager\helpers\Language::t() (Lx::t()) function currently does not support the translation of HTMLattributes
+
+PHP arrays:
+
+/**
+ * @translate
+ */
+private $_STATUSES = [
+    self::STATUS_INACTIVE => 'Inactive',
+    self::STATUS_ACTIVE => 'Active',
+    self::STATUS_DELETED => 'Deleted'
+];
+
+/**
+ * Returning the 'status' array on the site's own language.
+ * return array
+ */
+public function getStatuses() {
+    return \lajax\translatemanager\helpers\Language::a($this->_STATUSES);
+}
+
+/**
+ * @translate
+ */
+private $_GENDERS = ['Male', 'Female'];
+
+/**
+ * Returning the 'genders' array in German
+ * return array
+ */
+public function getGenders() {
+    return \lajax\translatemanager\helpers\Language::a($this->_GENDERS, 'de-DE');
+}
+PHP Database:
+
+With new attributes:
+namespace common\models;
+
+use lajax\translatemanager\helpers\Language;
+
+/**
+ * This is the model class for table "category".
+ *
+ * @property string $category_id
+ * @property string $name
+ * @property string $description
+ */
+class Category extends \yii\db\ActiveRecord {
+
+    // afterFind & beforeSave:
+
+    /**
+     * @var Returning the 'name' attribute on the site's own language.
+     */
+    public $name_t;
+
+    /**
+     * @var Returning the 'description' attribute on the site's own language.
+     */
+    public $description_t;
+
+    /* ... */
+
+    public function afterFind() {
+        $this->name_t = Language::d($this->name);
+        $this->description_t = Language::d($this->descrioption);
+
+        // or If the category is the database table name.
+        // $this->name_t = Language::t(static::tableName(), $this->name);
+        // $this->description_t = Language::t(static::tableName(), $this->description);
+        parent::afterFind();
+    }
+
+    public function beforeSave($insert) {
+        if (parent::beforeSave($insert)) {
+            Language::saveMessage($this->name);
+            Language::saveMessage($this->description);
+
+            // or If the category is the database table name.
+            // Language::saveMessage($this->name, static::tableName());
+            // Language::saveMessage($this->description, static::tableName());
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // or GETTERS:
+
+    /**
+     * @return string Returning the 'name' attribute on the site's own language.
+     */
+    public function getName($params = [], $language = null) {
+        return Language::d($this->name, $params, $language);
+
+        // or If the category is the database table name.
+        // return Language::t(static::tableName(), $this->name, $params, $language);
+    }
+
+    /**
+     * @return string Returning the 'description' attribute on the site's own language.
+     */
+    public function getDescription($params = [], $language = null) {
+        return Language::d($this->description, $params, $language);
+
+        // or If the category is the database table name.
+        // return Language::t(static::tableName(), $this->description, $params, $language);
+    }
+}
+With behavior (since 1.5.3):
+
+This behavior does the following:
+
+Replaces the specified attributes with translations after the model is loaded.
+Saves the attribute values as:
+Source messages, if the current language is the source language.
+Translations, if the current language is different from the source language. This way the value stored in database is not overwritten with the translation.
+Note: If the model should be saved as translation, but the source message does not exist yet in the database then the message is saved as the source message whether the current language is the source language or not. To avoid this scan the database for existing messages when using the behavior first, and only save new records when the current language is the source language.
+
+namespace common\models;
+
+/**
+ * This is the model class for table "category".
+ *
+ * @property string $category_id
+ * @property string $name
+ * @property string $description
+ */
+class Category extends \yii\db\ActiveRecord {
+
+    // TranslateBehavior
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => \lajax\translatemanager\behaviors\TranslateBehavior::className(),
+                'translateAttributes' => ['name', 'description'],
+            ],
+
+            // or If the category is the database table name.
+            // [
+            //     'class' => \lajax\translatemanager\behaviors\TranslateBehavior::className(),
+            //     'translateAttributes' => ['name', 'description'],
+            //     'category' => static::tableName(),
+            // ],
+        ];
+    }
+
+}
+URLs
+URLs for the translating tool:
+
+/translatemanager/language/list         // List of languages and modifying their status
+/translatemanager/language/create       // Create languages
+/translatemanager/language/scan         // Scan the project for new multilingual elements
+/translatemanager/language/optimizer    // Optimise the database
+Example implementation of the Yii2 menu into your own menu.
+
+$menuItems = [
+    ['label' => Yii::t('language', 'Language'), 'items' => [
+            ['label' => Yii::t('language', 'List of languages'), 'url' => ['/translatemanager/language/list']],
+            ['label' => Yii::t('language', 'Create'), 'url' => ['/translatemanager/language/create']],
+        ]
+    ],
+    ['label' => Yii::t('language', 'Scan'), 'url' => ['/translatemanager/language/scan']],
+    ['label' => Yii::t('language', 'Optimize'), 'url' => ['/translatemanager/language/optimizer']],
+    ['label' => Yii::t('language', 'Im-/Export'), 'items' => [
+        ['label' => Yii::t('language', 'Import'), 'url' => ['/translatemanager/language/import']],
+        ['label' => Yii::t('language', 'Export'), 'url' => ['/translatemanager/language/export']],
+    ]
+];
+Console commands
+Register the command
+
+'controllerMap' => [
+    'translate' => \lajax\translatemanager\commands\TranslatemanagerController::className()
+],
+Use it with the Yii CLI
+
+./yii translate/scan
+./yii translate/optimize
+Known issues
+Scanner is scanning parent root directory #12.
+
+You can overwrite this behavior with the scanRootParentDirectory option. (See Config section for details.)
+
+Frontend translation of strings in hidden tags corrupts HTML. #45
+
+Coding style
+The project uses the PSR-2 coding standard.
+
+Coding style issues can be fixed using the following command:
+
+composer cs-fix
+You can check the code, without affecting it:
+
+composer cs-fix-dry-run
+Change log
+Please see CHANGELOG for more information on what has changed recently.
+
+
+
+
+
+
+
+// Uploding File on cloud model
+
+mespace app\models;
+
+use yii\base\Model;
+use yii\web\UploadedFile;
+
+class UploadForm extends Model
+{
+    /**
+     * @var UploadedFile
+     */
+    public $imageFile;
+
+    public function rules()
+    {
+        return [
+            [['imageFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
+        ];
+    }
+    
+    public function upload()
+    {
+        if ($this->validate()) {
+            $this->imageFile->saveAs('uploads/' . $this->imageFile->baseName . '.' . $this->imageFile->extension);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
+
+
+ 
+// Delete the objects in the "photos" bucket with the a prefix of "thumbs/"
+$s3->deleteMatchingObjects('photos', 'thumbs/');
+
+
+
+
+s3 Bucket Name
+--------------
+The following rules apply for naming buckets in Amazon S3:
+
+Bucket names must be between 3 and 63 characters long.
+
+Bucket names can consist only of lowercase letters, numbers, dots (.), and hyphens (-).
+
+Bucket names must begin and end with a letter or number.
+
+Bucket names must not be formatted as an IP address (for example, 192.168.5.4).
+
+Bucket names must be unique within a partition. A partition is a grouping of Regions. AWS currently has three partitions: aws (Standard Regions), aws-cn (China Regions), and aws-us-gov (AWS GovCloud [US] Regions).
+
+Buckets used with Amazon S3 Transfer Acceleration can't have dots (.) in their names. For more information about Transfer Acceleration, see Configuring fast, secure file transfers using Amazon S3 Transfer Acceleration.
+
+For best compatibility, we recommend that you avoid using dots (.) in bucket names, except for buckets that are used only for static website hosting. If you include dots in a bucket's name, you can't use virtual-host-style addressing over HTTPS, unless you perform your own certificate validation. This is because the security certificates used for virtual hosting of buckets don't work for buckets with dots in their names.
+
+This limitation doesn't affect buckets used for static website hosting, because static website hosting is only available over HTTP. For more information about virtual-host-style addressing, see Virtual hosting of buckets. For more information about static website hosting, see Hosting a static website using Amazon S3.
+
+
+
+Rules for models
+-----------------
+public function rules(){
+        return [
+        [['boolean_var'],'boolean'],
+            [[ 'range_in_string'],'required'],
+            [['default_value'],'default','value'=>'DEFAULT VALUE'],
+            [['integer_var'],'integer'],
+            [['double_var'],'double'],
+            [['number_min'],'number','min'=>10],
+            [['number_max'],'number','max'=>100],
+            [['number_min_max'],'number','min'=>10,'max'=>100],
+            [['file_image'],'image'],
+            [['file_var'],'file','types'=>['gif','jpg']],
+            [['date_var'],'date', 'format'=>'d-m-yy'],
+
+            [['min_string'],'string','min'=>10],
+            [['max_string'],'string','max'=>10],
+            [['min_max_string'],'string','min'=>5,'max'=>10],
+            ['min_max_string2', 'string', 'length' => [4, 10]],
+
+            ['email_var','email'],
+            ['url_var','url'],
+
+            [['unique_var'],'unique'],
+
+            [['filter_trim'],'filter','filter'=>'trim'],
+            [['filter_trim'],'filter','filter'=>'strtolower'],
+            ['filter_custom_function', 'filter', 'filter' => function ($value) {
+            // your concept
+            if($value=='')
+            return '';
+            return 'Value Changed';}],
+
+            ['range_in_min_max', 'in','range'=>range(5,20)],
+
+            ['range_in','in','range'=>['en','fr','zn'],'strict'=>false], //strict false
+            ['range_in_string','in','range'=>['EN','FR','ZN'],'strict'=>true],
+
+            ['custom_validation','custom_function_validation'],
+
+            [['passwordConfirm'], 'compare', 'compareAttribute' => 'password'],     
+            [['password','date_var'],'safe'],
+        ];
+}
+
+
+
+
+
+## Font Awsome Asset bundle
+
+composer require yidas/yii2-fontawesome
+
+
+
+Uses:
+
+Register or depend Asset into your application:
+
+yidas\yii\fontawesome\FontawesomeAsset
+For eaxmple, to register Font Awesome assets in view :
+
+\yidas\yii\fontawesome\FontawesomeAsset::register($this);
+Or as dependency in your app asset bundle :
+
+namespace app\assets;
+use yii\web\AssetBundle;
+class AppAsset extends AssetBundle
+{
+    public $basePath = '@webroot';
+    public $baseUrl = '@web';
+    public $css = [
+        'css/site.css',
+    ];
+    public $js = [
+    ];
+    public $depends = [
+        'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapAsset',
+        'yidas\yii\fontawesome\FontawesomeAsset',
+    ];
+}
+CDN Asset Mode
+You could switch Asset to use CDN distribution by configuring config file:
+
+'components' => [
+    'assetManager' => [
+        'bundles' => [
+            'yidas\yii\fontawesome\FontawesomeAsset' => [
+                'cdn' => true,
+                // 'cdnVersion' => '5.11.0',
+            ],
+        ],
+    ],
+],
+Specify a CDN source
+You could also specify CDN source you like:
+
+'assetManager' => [
+    'bundles' => [
+        'yidas\yii\fontawesome\FontawesomeAsset' => [
+            'cdn' => true,
+            'cdnCSS' => ['//maxcdn.bootstrapcdn.com/font-awesome/5.11.0/css/font-awesome.min.css'],
+        ],
+    ],
+],
+
+
+
+
+Version Control
+Update dependent packages
+composer update yidas/yii2-fontawesome
+Update newest Font-Awesome version
+composer update fortawesome/font-awesome
+Specify a Font-Awesome version
+composer require fortawesome/font-awesome 5.11.0
+
+
+
+
+## REgister CSS File
+----------------------------------------
+
+$this->registerCssFile('node_modules/fullcalendar/dist/fullcalendar.css', [
+    'depends' => [\yii\web\JqueryAsset::className()]
+]);
+
+
+
+Alternatively
+
+
+namespace app\assets;
+use Yii;
+use yii\web\AssetBundle;
+use yii\web\View;
+
+
+// set @themes alias so we do not have to update baseUrl every time we change themes
+Yii::setAlias('@themes', Yii::$app->view->theme->baseUrl);
+
+/**
+ * Main frontend application asset bundle.
+ */
+class FullCalendarAsset extends AssetBundle
+{
+    public $sourcePath = '@app/node_modules/';
+
+    public $css = [
+        'fullcalendar/dist/_fullcalendar.css',       
+    ];
+    public $js = [
+
+
+    ];
+    public $depends = [
+        'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapAsset',
+        'yii\bootstrap\BootstrapPluginAsset',        
+    ];
+
+}
+
+
+place the above file inside the app/assets directory and then inside your view
+
+use app\assets\FullCalendarAsset;
+FullCalendarAsset::register($this);
+
+
+
+
+Error issues for windwows 10
+#########################
+
+
+How to solve cURL error : (60) SSL certificate?
+To fix this error, you have to download the CA bundle from cURL official site. Follow the steps below;
+
+i. TO begin, go to the website http://curl.haxx.se/ca/cacert.pem to download the "cacert.pem" file.
+ii. Next, copy the full page and save it as "cacert.pem".
+iii. Locate your PHP's php.ini file. Open this file by editing it and add the following line to the bottom of the file;
+curl.cainfo = "[pathtofile]cacert.pem"
+
+The "pathtofile" means  the path where you saved the cacert.pem file.
+
+After saving the php.ini file, restart the webserver or on Windows, do a restart of the application connection pool to effect changes.
+
+
+
+
+
+
+getclient for windows 10
+===========================
+
+  public function getClient() { 
+
+      $secret='4D5+hd72Vgf3/iX26S8PiTmZ41nKfokfWFv3GGd6';
+      $key='AKIARYVNOTN3MW2SGIG4';
+    //  $provider = CredentialProvider::defaultProvider();
+        $s3Client = new S3Client([
+      //  'profile' => 'default',
+        'region' => 'ap-south-1',
+        'version' => 'latest',
+       'credentials' => [
+          'key' => $key,
+          'secret' => $secret,
+    ]
+
+  }
+
+
+
+
+getclient for ubuntu / linux
+===========================
+
+public function getClient() { 
+
+    
+   
+        $s3Client = new S3Client([
+       'profile' => 'default',
+        'region' => 'ap-south-1',
+        'version' => 'latest',
+
+// make sure your "credentials" files is in the .aws folder under root directory
+
+
+}  

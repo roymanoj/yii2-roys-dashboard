@@ -1,2 +1,2 @@
-# yii2-roys-dashboard
-A Yii2 basic templates with user management , adminlte3 and bootstrap4 
+# tipl-yii2-webapp
+Basic Dashboard with Yii2 &amp; AdminLTE 3 along with User registration and login . Key layout to start any basic application
