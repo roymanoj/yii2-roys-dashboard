@@ -42,7 +42,7 @@ for Amzon S3 Credentials (components/Aws.php)
 
 
 
-        getclient for windows 10
+getclient for windows 10
 ===========================
 
   public function getClient() { 
