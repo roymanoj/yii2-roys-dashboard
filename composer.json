@@ -17,7 +17,7 @@
        
         "source": "https://github.com/roymanoj/yii2-roys-dashboard"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "require": {
         "php": ">=5.6.0",
         "yiisoft/yii2": "~2.0.14",
