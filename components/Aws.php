@@ -20,8 +20,8 @@ class Aws extends Component
 
     public function getClient() { 
 
-      $secret='4D5+hd72Vgf3/iX26S8PiTmZ41nKfokfWFv3GGd6';
-      $key='AKIARYVNOTN3MW2SGIG4';
+      $secret='secret key from amazon';
+      $key='Key from amazon';
     //  $provider = CredentialProvider::defaultProvider();
         $s3Client = new S3Client([
       //  'profile' => 'default',
