@@ -14,7 +14,7 @@
     "license": "BSD-3-Clause",
     "support": {
         "issues": "https://github.com/roymanoj/yii2-roys-dashboard/issues?state=open",
-       
+        "wiki": "https://github.com/roymanoj/yii2-roys-dashboard/wiki",
         "source": "https://github.com/roymanoj/yii2-roys-dashboard"
     },
     "minimum-stability": "dev",
