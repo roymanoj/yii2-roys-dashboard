@@ -37,6 +37,8 @@ To add Admin Account - On your browser
 
         localhost/yii2-roys-dashboard/app/site/add-admin
 
+Default usenemae : admin Password: admin (You can change it within the dashboard)
+
 
 for Amzon S3 Credentials (components/Aws.php)
 
