@@ -1,21 +1,21 @@
 {
-    "name": "yiisoft/yii2-app-basic",
-    "description": "Yii 2 Basic Project Template",
+    "name": "roymanoj/yii2-roys-dashboard",
+    "description": "Yii 2 Basic Project Template with Adminlte3 + Bootstrap4 + UserInterface",
     "keywords": [
         "yii2",
         "framework",
         "basic",
-        "project template"
+        "project template",
+        "adminlte3",
+        "bootstrap4"
     ],
-    "homepage": "http://www.yiiframework.com/",
+    "homepage": "http://openmentors.net",
     "type": "project",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/yii2/issues?state=open",
-        "forum": "http://www.yiiframework.com/forum/",
-        "wiki": "http://www.yiiframework.com/wiki/",
-        "irc": "irc://irc.freenode.net/yii",
-        "source": "https://github.com/yiisoft/yii2"
+        "issues": "https://github.com/roymanoj/yii2-roys-dashboard/issues?state=open",
+       
+        "source": "https://github.com/roymanoj/yii2-roys-dashboard"
     },
     "minimum-stability": "stable",
     "require": {
